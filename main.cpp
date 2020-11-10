@@ -15,7 +15,7 @@ int MainScene(sf::RenderWindow& window, int& CurrentScene) {
     menu1.setFillColor(sf::Color::White);
     sf::Text menu1_text;
     menu1_text.setFont(font1);
-    menu1_text.setString(sf::String("Start game"));
+    menu1_text.setString(sf::String("Play game"));
     menu1_text.setFillColor(sf::Color::Black);
     menu1_text.setCharacterSize(50);
     menu1_text.setPosition(70,20);
@@ -78,8 +78,13 @@ int MainScene(sf::RenderWindow& window, int& CurrentScene) {
             return 0;
         }
 
-        if (menu1.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window))))
+        if (menu1.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
             menu1.setFillColor(sf::Color(151, 182, 255));
+            if (event.type == sf::Event::MouseButtonPressed) {
+                CurrentScene = 1;
+                return 0;
+            }
+        }
         else menu1.setFillColor(sf::Color::White);
 
         if (menu2.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
@@ -229,9 +234,11 @@ int SchoolManager(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::L
 
     bool rf = true;
 
-    sf::RectangleShape del_school(sf::Vector2f(15, 5));
+    sf::RectangleShape del_school(sf::Vector2f(15, 15));
     del_school.setFillColor(sf::Color::Red);
     del_school.setPosition(0, -100);
+    del_school.setOutlineThickness(-1);
+    del_school.setOutlineColor(sf::Color::Black);
 
     event.type = sf::Event::MouseMoved;
     while (true)
@@ -288,6 +295,8 @@ int SchoolManager(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::L
                         selected = i;
                         selected1 = -1;
                         vot2.clear();
+
+                        event.type = sf::Event::MouseMoved;
                     }
                 }
             }
@@ -397,7 +406,7 @@ int SchoolManager(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::L
                             return 0;
                         }
 
-                        if (selected2 > 2) {
+                        if (selected2 >= 2) {
                             sign.setString("Enter new value");
                             input.setSize(sf::Vector2f(10, 100));
                             if (event.type == sf::Event::TextEntered) {
@@ -412,6 +421,10 @@ int SchoolManager(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::L
                             }
                             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && text.getString() != "") {
                                 switch (selected2) {
+                                case 2:
+                                    level.GetSchoolList()[selected].Domination = std::stoi(std::string(text.getString().toAnsiString()));
+                                    vot2[selected2].setString(std::string("Domination:                              ") + std::to_string(level.GetSchoolList()[selected].Domination));
+                                    break;
                                 case 3:
                                     level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).RequiredSchoolLevel = std::stoi(std::string(text.getString().toAnsiString()));
                                     vot2[selected2].setString(std::string("Required school level:             ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].RequiredSchoolLevel));
@@ -457,6 +470,30 @@ int SchoolManager(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::L
                                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && text.getString() != "") {
                                     level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.Name = text.getString();
                                     vot2[selected2].setString(std::string("Entity name: ") + level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.Name);
+                                    break;
+                                }
+                                input.setPosition(630 - text.getGlobalBounds().width / 2, 310);
+                                text.setPosition(input.getPosition().x + 10, 335);
+                                input.setSize(sf::Vector2f(text.getGlobalBounds().width + 20, 100));
+                            }
+                            if (selected2 == 1) {
+                                sign.setString("'a' (amoral) 'n' (not amoral)");
+                                if (event.type == sf::Event::TextEntered && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && (event.text.unicode == 'a' || event.text.unicode == 'n' || event.text.unicode == '\b')) {
+                                    if (text.getString().getSize() < 1 && event.text.unicode != '\b') {
+                                        text.setString(text.getString() + event.text.unicode);
+                                    }
+                                    else if (event.text.unicode == '\b') text.setString(text.getString().substring(0, text.getString().getSize() - 1));
+                                    event.type = sf::Event::MouseMoved;
+                                }
+                                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && text.getString() != "") {
+                                    if (text.getString() == "a") {
+                                        level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.Amoral = true;
+                                        vot2[selected2].setString(std::string("Amorality: ") + "amoral");
+                                    }
+                                    else {
+                                        level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.Amoral = false;
+                                        vot2[selected2].setString(std::string("Amorality: ") + "not amoral");
+                                    }
                                     break;
                                 }
                                 input.setPosition(630 - text.getGlobalBounds().width / 2, 310);
@@ -604,7 +641,18 @@ int SchoolManager(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::L
         }
 
         if (selected >= 0)
-            del_school.setPosition(vot[selected].getPosition() + sf::Vector2f(vot[selected].getGlobalBounds().width - 3, vot[selected].getGlobalBounds().height + - 10));
+            del_school.setPosition(vor[selected].getPosition() + sf::Vector2f(vor[selected].getGlobalBounds().width - 29, vor[selected].getGlobalBounds().height - 29));
+
+        if (del_school.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            del_school.setFillColor(sf::Color(150, 0, 0));
+            if (event.type == sf::Event::MouseButtonPressed) {
+                level.GetSchoolList().erase(level.GetSchoolList().begin() + selected);
+                return 0;
+            }
+        }
+        else {
+            del_school.setFillColor(sf::Color::Red);
+        }
 
 
         window.clear();
@@ -887,20 +935,309 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
     }
 }
 
+
+int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& level) {
+
+    //Ground tile
+    sf::Texture ground_t;
+    ground_t.loadFromFile("Resources/Map/ground_tile.png");
+    sf::Sprite ground_tile;
+    ground_tile.setTexture(ground_t);
+    //wall tile
+    sf::Texture wall_t;
+    wall_t.loadFromFile("Resources/Map/wall_tile.png");
+    sf::Sprite wall_tile;
+    wall_tile.setColor(sf::Color(150, 150, 150));
+    wall_tile.setTexture(wall_t);
+
+    sf::RectangleShape hl;
+    hl.setSize(sf::Vector2f(80, 80));
+    hl.setFillColor(sf::Color(255, 255, 255, 50));
+
+    int x, y, sizex, sizey;
+    sizex = level.GetSizeX();
+    sizey = level.GetSizeY();
+
+    sf::Event event;
+    event.type = sf::Event::MouseMoved;
+    while (true)
+    {
+        window.pollEvent(event);
+
+        if (event.type == sf::Event::Closed) {
+            window.close();
+            CurrentScene = 0;
+            return 0;
+        }
+
+        window.clear();
+        for (int i = 0; i < level.GetDungeon().size(); i++) {
+            x = i % sizex;
+            y = i / sizex;
+            ground_tile.setPosition(x * 80, y * 80);
+            window.draw(ground_tile);
+            if (level.GetCellType(x, y) == Summoners_Game::CellType::CELL_WALL) {
+                wall_tile.setPosition(x * 80, y * 80);
+                window.draw(wall_tile);
+            }
+            if (ground_tile.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+                hl.setPosition(x * 80, y * 80);
+                window.draw(hl);
+            }
+        }
+        window.display();
+
+
+    }
+
+}
+
+int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted) {
+
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 4;
+    sf::RenderWindow window(sf::VideoMode(level.GetSizeX()*80 + 400, level.GetSizeY() * 80), "Map editor", sf::Style::Titlebar | sf::Style::Close, settings);
+    window.setVerticalSyncEnabled(true);
+    sf::Image icon;
+    icon.loadFromFile("Resources/return_button0.png");
+    window.setIcon(64, 64, icon.getPixelsPtr());
+    window.setPosition(sf::Vector2i(0, 0));
+
+    if (gamestarted) {
+        Play(window, CurrentScene, level);
+        return 0;
+    }
+
+    //Ground tile
+    sf::Texture ground_t;
+    ground_t.loadFromFile("Resources/Map/ground_tile.png");
+    sf::Sprite ground_tile;
+    ground_tile.setTexture(ground_t);
+    //wall tile
+    sf::Texture wall_t;
+    wall_t.loadFromFile("Resources/Map/wall_tile.png");
+    sf::Sprite wall_tile;
+    wall_tile.setColor(sf::Color(150, 150, 150));
+    wall_tile.setTexture(wall_t);
+    
+    sf::RectangleShape hl;
+    hl.setSize(sf::Vector2f(80, 80));
+    hl.setFillColor(sf::Color(255, 255, 255, 50));
+
+    //buttons
+    sf::Font font1;
+    font1.loadFromFile("Resources/18888.ttf");
+    sf::Vector2f offset(sf::Vector2f(level.GetSizeX()*80 + 50, 20));
+    sf::RectangleShape menu1(sf::Vector2f(300, 40));
+    menu1.setFillColor(sf::Color::White);
+    sf::Text menu1_text;
+    menu1_text.setFont(font1);
+    menu1_text.setString("Load map");
+    menu1_text.setFillColor(sf::Color::Black);
+    menu1_text.setCharacterSize(30);
+    menu1_text.setPosition(75, 1);
+    menu1.setOutlineThickness(7);
+    menu1.setOutlineColor(sf::Color::Black);
+    menu1.setPosition(menu1.getPosition() + offset);
+    menu1_text.setPosition(menu1_text.getPosition() + offset);
+    
+    offset = sf::Vector2f(0, 50);
+    sf::RectangleShape menu2(menu1);
+    sf::Text menu2_text(menu1_text);
+    menu2_text.setString("Save map");
+    menu2.setPosition(menu1.getPosition() + offset);
+    menu2_text.setPosition(menu1_text.getPosition() + offset);
+
+    sf::RectangleShape menu3(menu1);
+    sf::Text menu3_text(menu1_text);
+    menu3_text.setString("Start game");
+    menu3.setPosition(sf::Vector2f(menu1.getPosition().x, window.getSize().y - 70));
+    menu3_text.setPosition(sf::Vector2f(menu1_text.getPosition().x, window.getSize().y - 70));
+
+    
+    offset = sf::Vector2f(-10, window.getSize().y / 2 - 80);
+    sf::Text w_text(menu1_text);
+    w_text.setString("Map width: ");
+    w_text.setFillColor(sf::Color::White);
+    w_text.setPosition(menu1_text.getPosition() + offset);
+
+    offset = sf::Vector2f(-10, 60);
+    sf::Text h_text(menu1_text);
+    h_text.setString("Map height: ");
+    h_text.setFillColor(sf::Color::White);
+    h_text.setPosition(w_text.getPosition() + offset);
+
+    sf::RectangleShape menu4(menu1);
+    sf::Text menu4_text(menu1_text);
+    menu4_text.setString("Apply changes");
+    menu4.setPosition(sf::Vector2f(menu1.getPosition().x, h_text.getPosition().y + 80));
+    menu4_text.setPosition(sf::Vector2f(menu1_text.getPosition().x - 30, h_text.getPosition().y + 80));
+
+    sf::CircleShape wu(10, 3);
+    wu.setPosition(w_text.getPosition() + sf::Vector2f(150, 5));
+
+    sf::CircleShape wd(wu);
+    wd.setRotation(180);
+    wd.move(20,35);
+
+    sf::CircleShape hu(10, 3);
+    hu.setPosition(h_text.getPosition() + sf::Vector2f(160, 5));
+
+    sf::CircleShape hd(hu);
+    hd.setRotation(180);
+    hd.move(20, 35);
+    
+
+    int x, y, sizex, sizey;
+    sizex = level.GetSizeX();
+    sizey = level.GetSizeY();
+
+    int new_w = sizex;
+    int new_h = sizey;
+
+    sf::Event event;
+    event.type = sf::Event::MouseMoved;
+    while (true)
+    {
+        window.pollEvent(event);
+
+        if (event.type == sf::Event::Closed) {
+            window.close();
+            CurrentScene = 0;
+            return 0;
+        }
+
+        if (wu.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            wu.setFillColor(sf::Color::Green);
+            if (new_w == 19) {
+                wu.setFillColor(sf::Color::Red);
+            }
+            else if (event.type == sf::Event::MouseButtonPressed) {
+                new_w += 1;
+            }
+        }
+        else wu.setFillColor(sf::Color::White);
+
+        if (wd.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            wd.setFillColor(sf::Color::Green);
+            if (new_w == 5) {
+                wd.setFillColor(sf::Color::Red);
+            }
+            else if (event.type == sf::Event::MouseButtonPressed) {
+                new_w -= 1;
+            }
+        }
+        else wd.setFillColor(sf::Color::White);
+
+        if (hu.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            hu.setFillColor(sf::Color::Green);
+            if (new_h == 12) {
+                hu.setFillColor(sf::Color::Red);
+            }
+            else if (event.type == sf::Event::MouseButtonPressed) {
+                new_h += 1;
+            }
+        }
+        else hu.setFillColor(sf::Color::White);
+
+        if (hd.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            hd.setFillColor(sf::Color::Green);
+            if (new_h == 5) {
+                hd.setFillColor(sf::Color::Red);
+            }
+            else if (event.type == sf::Event::MouseButtonPressed) {
+                new_h -= 1;
+            }
+        }
+        else hd.setFillColor(sf::Color::White);
+
+        if (menu4.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            menu4.setFillColor(sf::Color(151, 182, 255));
+            if (event.type == sf::Event::MouseButtonPressed) {
+                level.SetSize(new_w, new_h);
+                return 0;
+            }
+        }
+        else  menu4.setFillColor(sf::Color::White);
+
+        if (menu3.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            menu3.setFillColor(sf::Color(151, 182, 255));
+            if (event.type == sf::Event::MouseButtonPressed) {
+                gamestarted = true;
+                Play(window, CurrentScene, level);
+                return 0;
+            }
+        }
+        else  menu3.setFillColor(sf::Color::White);
+
+        event.type = sf::Event::MouseMoved;
+        w_text.setString("Width: " + std::to_string(new_w));
+        h_text.setString("Height: " + std::to_string(new_h));
+
+
+        window.clear();
+        //draw map
+        for (int i = 0; i < level.GetDungeon().size(); i++) {
+            x = i % sizex;
+            y = i / sizex;
+            ground_tile.setPosition(x * 80, y * 80);
+            window.draw(ground_tile);
+            if (level.GetCellType(x, y) == Summoners_Game::CellType::CELL_WALL) {
+                wall_tile.setPosition(x * 80, y * 80);
+                window.draw(wall_tile);
+            }
+            if (ground_tile.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+                hl.setPosition(x * 80, y * 80);
+                window.draw(hl);
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && level.GetDungeon()[i]->Type == Summoners_Game::CellType::CELL_EMPTY) {
+                    level.GetDungeon()[i] = new Summoners_Game::Cell(Summoners_Game::CellType::CELL_WALL);
+                }
+                else if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && level.GetDungeon()[i]->Type == Summoners_Game::CellType::CELL_WALL) {
+                    level.GetDungeon()[i] = new Summoners_Game::Cell(Summoners_Game::CellType::CELL_EMPTY);
+                }
+            }
+        }
+
+        //draw buttons
+        window.draw(menu1);
+        window.draw(menu1_text);
+        window.draw(menu2);
+        window.draw(menu2_text);
+        window.draw(menu3);
+        window.draw(menu3_text);
+        window.draw(menu4);
+        window.draw(menu4_text);
+        //draw size modifiers
+        window.draw(w_text);
+        window.draw(h_text);
+        window.draw(wu);
+        window.draw(wd);
+        window.draw(hu);
+        window.draw(hd);
+
+        window.display();
+    }
+}
+
+
+
+
 int main()
 {
     Summoners_Game::Level level;
+    bool gamestarted = false;
     int CurrentScene = 0;
     sf::ContextSettings settings;
     settings.antialiasingLevel = 4;
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Battle of summoners", sf::Style::Titlebar | sf::Style::Close, settings);
+    sf::RenderWindow window(sf::VideoMode(1280,720), "Battle of summoners", sf::Style::Titlebar | sf::Style::Close, settings);
     window.setVerticalSyncEnabled(true);
     sf::Image icon;
     icon.loadFromFile("Resources/return_button0.png");
     window.setIcon(64, 64, icon.getPixelsPtr());
     while (CurrentScene != -1) {
         switch (CurrentScene) {
-        case 0: MainScene(window, CurrentScene); break;
+        case 0: window.setVisible(true); MainScene(window, CurrentScene); break;
+        case 1: window.setVisible(false); MapEditor(CurrentScene, level, gamestarted); break;
         case 2: SchoolManager(window, CurrentScene, level); break;
         case 3: SaveLoad(window, CurrentScene, level); break;
         }
