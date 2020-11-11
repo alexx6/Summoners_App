@@ -693,7 +693,7 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
     sf::Event event;
     sf::Font font1;
     font1.loadFromFile("Resources/18888.ttf");
-    sf::Vector2f offset(190, 100);
+    sf::Vector2f offset(190, 200);
     sf::RectangleShape menu1(sf::Vector2f(400, 100));
     menu1.setFillColor(sf::Color::White);
     sf::Text menu1_text;
@@ -728,17 +728,9 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
     menu4_text.setPosition(offset);
     menu4_text.setString("Load entities");
 
-    offset = menu1.getPosition() + sf::Vector2f(250, 400);
-    sf::RectangleShape menu5(menu1);
-    sf::Text menu5_text(menu1_text);
-    menu5.setPosition(offset);
-    menu5_text.setPosition(offset);
-    menu5_text.setString("Load map");
-
     menu2_text.move(70, 20);
     menu3_text.move(50, 20);
     menu4_text.move(50, 20);
-    menu5_text.move(75, 20);
 
     sf::Texture b_t;
     b_t.create(1280, 720);
@@ -823,7 +815,7 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
                     }
                     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && text.getString() != "") {
                         if (level.GetSchoolList().size()) {
-                            level.SaveEntities(text.getString());
+                            level.SaveEntities(text.getString() + std::string(".sed"));
                             return 0;
                         }
                         else {
@@ -874,7 +866,7 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
                         event.type = sf::Event::MouseMoved;
                     }
                     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && text.getString() != "") {
-                        if (level.LoadEntities(text.getString())) return 0;
+                        if (level.LoadEntities(text.getString() + std::string(".sed"))) return 0;
                         else {
                             sign.setString("File not found");
                             text.setString("");
@@ -899,14 +891,6 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
         }
         else menu4.setFillColor(sf::Color::White);
 
-       //Load map
-        if (menu5.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
-            menu5.setFillColor(sf::Color(151, 182, 255));
-            if (event.type == sf::Event::MouseButtonPressed) {
-
-            }
-        }
-        else menu5.setFillColor(sf::Color::White);
 
         if (return_image.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
             return_image.setColor(sf::Color(150, 150, 150));
@@ -928,8 +912,6 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
         window.draw(menu3_text);
         window.draw(menu4);
         window.draw(menu4_text);
-        window.draw(menu5);
-        window.draw(menu5_text);
         window.draw(return_image);
         window.display();
     }
@@ -1095,6 +1077,24 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
     int new_w = sizex;
     int new_h = sizey;
 
+    sf::Text sign;
+    sign.setFont(font1);
+    sign.setFillColor(sf::Color::White);
+    sign.setCharacterSize(60);
+
+    sf::RectangleShape input;
+    input.setFillColor(sf::Color::White);
+    input.setOutlineColor(sf::Color::Black);
+    input.setOutlineThickness(3);
+
+    sf::Text text(menu1_text);
+    text.setCharacterSize(50);
+
+    sf::Texture pause_texture;
+    pause_texture.create(1280, 720);
+    sf::Sprite pause_sprite;
+    pause_sprite.setColor(sf::Color(70, 70, 70));
+
     sf::Event event;
     event.type = sf::Event::MouseMoved;
     while (true)
@@ -1106,6 +1106,107 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
             CurrentScene = 0;
             return 0;
         }
+
+        if (menu1.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            menu1.setFillColor(sf::Color(151, 182, 255));
+            if (event.type == sf::Event::MouseButtonPressed) {
+                pause_texture.update(window);
+                pause_sprite.setTexture(pause_texture);
+                text.setString("");
+                sign.setString("Enter map file name");
+                while (true) {
+                    window.pollEvent(event);
+                    if (event.type == sf::Event::Closed) {
+                        window.close();
+                        CurrentScene = -1;
+                        return 0;
+                    }
+                    input.setPosition(630, -200);
+                    if (event.type == sf::Event::TextEntered && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+                        if (text.getString().getSize() < 15 && event.text.unicode != '\b') {
+                            text.setString(text.getString() + event.text.unicode);
+                        }
+                        else if (event.text.unicode == '\b') text.setString(text.getString().substring(0, text.getString().getSize() - 1));
+                        event.type = sf::Event::MouseMoved;
+                    }
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && text.getString() != "") {
+                        if (level.LoadMap(text.getString() + std::string(".smd"))) {
+                            return 0;
+                        }
+                        else {
+                            sign.setString("Map not found");
+                            text.setString("");
+                        }
+                    }
+
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) break;
+
+                    input.setPosition(window.getSize().x / 2 - text.getGlobalBounds().width / 2, window.getSize().y / 2);
+                    text.setPosition(input.getPosition().x + 10, input.getPosition().y + 25);
+                    input.setSize(sf::Vector2f(text.getGlobalBounds().width + 20, 100));
+                    sign.setPosition(sf::Vector2f(window.getSize().x / 2 - sign.getGlobalBounds().width / 2, window.getSize().y / 4));
+
+                    window.clear();
+                    window.draw(pause_sprite);
+                    window.draw(input);
+                    window.draw(text);
+                    window.draw(sign);
+                    window.display();
+                }
+            }
+        }
+        else  menu1.setFillColor(sf::Color::White);
+
+        if (menu2.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            menu2.setFillColor(sf::Color(151, 182, 255));
+            if (event.type == sf::Event::MouseButtonPressed) {
+                pause_texture.update(window);
+                pause_sprite.setTexture(pause_texture);
+                text.setString("");
+                sign.setString("Enter map file name");
+                while (true) {
+                    window.pollEvent(event);
+                    if (event.type == sf::Event::Closed) {
+                        window.close();
+                        CurrentScene = -1;
+                        return 0;
+                    }
+                    input.setPosition(630, -200);
+                    if (event.type == sf::Event::TextEntered && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+                        if (text.getString().getSize() < 15 && event.text.unicode != '\b') {
+                            text.setString(text.getString() + event.text.unicode);
+                        }
+                        else if (event.text.unicode == '\b') text.setString(text.getString().substring(0, text.getString().getSize() - 1));
+                        event.type = sf::Event::MouseMoved;
+                    }
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && text.getString() != "") {
+                        if (level.SaveMap(text.getString() + std::string(".smd"))) {
+                            return 0;
+                        }
+                        else {
+                            sign.setString("Something wrong happened");
+                            text.setString("");
+                        }
+                    }
+
+                    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) break;
+
+                    input.setPosition(window.getSize().x / 2 - text.getGlobalBounds().width / 2, window.getSize().y / 2);
+                    text.setPosition(input.getPosition().x + 10, input.getPosition().y + 25);
+                    input.setSize(sf::Vector2f(text.getGlobalBounds().width + 20, 100));
+                    sign.setPosition(sf::Vector2f(window.getSize().x / 2 - sign.getGlobalBounds().width / 2, window.getSize().y / 4));
+
+                    window.clear();
+                    window.draw(pause_sprite);
+                    window.draw(input);
+                    window.draw(text);
+                    window.draw(sign);
+                    window.display();
+                }
+            }
+        }
+        else  menu2.setFillColor(sf::Color::White);
+
 
         if (wu.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
             wu.setFillColor(sf::Color::Green);
@@ -1226,6 +1327,10 @@ int main()
 {
     Summoners_Game::Level level;
     bool gamestarted = false;
+    _mkdir("Save");
+    _mkdir("Save/Maps");
+    _mkdir("Save/Entities");
+
     int CurrentScene = 0;
     sf::ContextSettings settings;
     settings.antialiasingLevel = 4;
