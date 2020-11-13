@@ -3,6 +3,7 @@
 #include <SFML/Window.hpp>
 
 #include "../LAB3/LAB3_CODE/Summoners.h"
+#include <algorithm>
 
 int MainScene(sf::RenderWindow& window, int& CurrentScene) {
     window.clear();
@@ -65,7 +66,6 @@ int MainScene(sf::RenderWindow& window, int& CurrentScene) {
     exit_button.setTexture(e_t);
     exit_button.scale(sf::Vector2f(0.2, 0.2));
     exit_button.setPosition(sf::Vector2f(1180, 620));
-
 
     event.type = sf::Event::MouseMoved;
     while (true)
@@ -917,6 +917,42 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
     }
 }
 
+std::vector<int> PossibleDestinations(sf::RenderWindow& window, Summoners_Game::Level& level, int sp, int count = 5) {
+    std::vector<int> c;
+    int i = 0;
+    int dd = 0;
+    int n;
+    if (level.GetCellType(sp % level.GetSizeX(), sp / level.GetSizeX()) != Summoners_Game::CellType::CELL_WALL) c.push_back(sp);
+    while (dd < count) {
+        n = c.size();
+        while (i < n) {
+            if (c[i] % level.GetSizeX() < (level.GetSizeX() - 1) && level.GetCellType(c[i] % level.GetSizeX() + 1, c[i] / level.GetSizeX()) != Summoners_Game::CellType::CELL_WALL) {
+                if (std::find(c.begin(), c.end(), c[i] + 1) == c.end()) {
+                    c.push_back(c[i] + 1);
+                }
+            }
+            if ((c[i] % level.GetSizeX() > 0) && level.GetCellType(c[i] % level.GetSizeX() - 1, c[i] / level.GetSizeX()) != Summoners_Game::CellType::CELL_WALL) {
+                if (std::find(c.begin(), c.end(), c[i] - 1) == c.end()) {
+                    c.push_back(c[i] - 1);
+                }
+            }
+            if (c[i] / level.GetSizeX() < (level.GetSizeY() - 1) && level.GetCellType(c[i] % level.GetSizeX(), c[i] / level.GetSizeX() + 1) != Summoners_Game::CellType::CELL_WALL) {
+                if (std::find(c.begin(), c.end(), c[i] + level.GetSizeX()) == c.end()) {
+                    c.push_back(c[i] + level.GetSizeX());
+                }
+            }
+            if ((c[i] / level.GetSizeX() > 0) && level.GetCellType(c[i] % level.GetSizeX(), c[i] / level.GetSizeX() - 1) != Summoners_Game::CellType::CELL_WALL) {
+                if (std::find(c.begin(), c.end(), c[i] - level.GetSizeX()) == c.end()) {
+                    c.push_back(c[i] - level.GetSizeX());
+                }
+            }
+            i++;
+        }
+        dd++;
+    }
+    return c;
+}
+
 
 int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& level) {
 
@@ -931,14 +967,31 @@ int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& lev
     sf::Sprite wall_tile;
     wall_tile.setColor(sf::Color(150, 150, 150));
     wall_tile.setTexture(wall_t);
+    //Summoner sprites
+    sf::Texture summoner_t;
+    summoner_t.loadFromFile("Resources/summoner_sprite.png");
+    sf::Sprite summoner0_sprite;
+    summoner0_sprite.setTexture(summoner_t);
+    sf::Sprite summoner1_sprite(summoner0_sprite);
+    summoner1_sprite.setColor(sf::Color(255, 255, 0));
+    //////////////////////////////////////////
 
     sf::RectangleShape hl;
     hl.setSize(sf::Vector2f(80, 80));
     hl.setFillColor(sf::Color(255, 255, 255, 50));
 
+    sf::RectangleShape hl1(hl);
+    hl1.setFillColor(sf::Color(0, 255, 0, 30));
+
     int x, y, sizex, sizey;
     sizex = level.GetSizeX();
     sizey = level.GetSizeY();
+
+    int speed = 10;
+
+    std::vector<int> pd;
+
+    int selected = 1;
 
     sf::Event event;
     event.type = sf::Event::MouseMoved;
@@ -962,13 +1015,36 @@ int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& lev
                 wall_tile.setPosition(x * 80, y * 80);
                 window.draw(wall_tile);
             }
-            if (ground_tile.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
-                hl.setPosition(x * 80, y * 80);
-                window.draw(hl);
+            if (level.GetCellType(x, y) == Summoners_Game::CellType::CELL_SUMMONER) {
+
+                if ((static_cast<Summoners_Game::Cell_Summoner*>(level.GetDungeon()[i]))->Object == &level.GetSummoner()[0]) {
+                    summoner0_sprite.setPosition(x * 80, y * 80);
+                }
+                else {
+                    summoner1_sprite.setPosition(x * 80, y * 80);
+                }
             }
         }
-        window.display();
+        for (int i = 0; i < level.GetDungeon().size(); i++) {
+            x = i % sizex;
+            y = i / sizex;
+            hl.setPosition(x * 80, y * 80);
+            if (hl.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+                window.draw(hl);
+                if (selected == 1) {
+                    pd = PossibleDestinations(window, level, i);
+                    for (int i = 0; i < pd.size(); i++) {
+                        hl1.setPosition((pd[i] % level.GetSizeX()) * 80, (pd[i] / level.GetSizeX()) * 80);
+                        window.draw(hl1);
+                    }
+                }
+               
+            }
+        }
+        window.draw(summoner0_sprite);
+        window.draw(summoner1_sprite);
 
+        window.display();
 
     }
 
@@ -1001,7 +1077,15 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
     sf::Sprite wall_tile;
     wall_tile.setColor(sf::Color(150, 150, 150));
     wall_tile.setTexture(wall_t);
-    
+
+    //Summoner sprites
+    sf::Texture summoner_t;
+    summoner_t.loadFromFile("Resources/summoner_sprite.png");
+    sf::Sprite summoner0_sprite;
+    summoner0_sprite.setTexture(summoner_t);
+    sf::Sprite summoner1_sprite(summoner0_sprite);
+    summoner1_sprite.setColor(sf::Color(255, 255, 0));
+
     sf::RectangleShape hl;
     hl.setSize(sf::Vector2f(80, 80));
     hl.setFillColor(sf::Color(255, 255, 255, 50));
@@ -1094,6 +1178,8 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
     pause_texture.create(1280, 720);
     sf::Sprite pause_sprite;
     pause_sprite.setColor(sf::Color(70, 70, 70));
+
+    int summoner_drag = -1;
 
     sf::Event event;
     event.type = sf::Event::MouseMoved;
@@ -1271,7 +1357,48 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
         }
         else  menu3.setFillColor(sf::Color::White);
 
+        //Dragging summoners
+        if (summoner_drag == -1 && summoner0_sprite.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                summoner_drag = 0;
+            }
+        }
+        if (summoner_drag == -1 && summoner1_sprite.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                summoner_drag = 1;
+            }
+        }
+        if (summoner_drag == 0) {
+            summoner0_sprite.setPosition(sf::Vector2f(sf::Mouse::getPosition(window)) - sf::Vector2f(40, 40));
+            if (event.type == sf::Event::MouseButtonReleased) {
+                if (0 <= sf::Mouse::getPosition(window).y && sf::Mouse::getPosition(window).y <= sizey * 80 && 0 <= sf::Mouse::getPosition(window).x && sf::Mouse::getPosition(window).x <= sizex * 80) {
+                    if (level.GetCellType(sf::Mouse::getPosition(window).x / 80, sf::Mouse::getPosition(window).y / 80) == Summoners_Game::CellType::CELL_EMPTY) {
+                        level.GetDungeon()[level.GetSummoner()[0].GetInfo().x + sizex * level.GetSummoner()[0].GetInfo().y] = new Summoners_Game::Cell(Summoners_Game::CellType::CELL_EMPTY);
+                        level.GetDungeon()[sf::Mouse::getPosition(window).x / 80 + sizex * (sf::Mouse::getPosition(window).y / 80)] = new Summoners_Game::Cell_Summoner(&level.GetSummoner()[0]);
+                        level.GetSummoner()[0].GetInfo().x = sf::Mouse::getPosition(window).x / 80;
+                        level.GetSummoner()[0].GetInfo().y = sf::Mouse::getPosition(window).y / 80;
+                    }
+                }
+                summoner_drag = -1;
+            }
+        }
+        if (summoner_drag == 1) {
+            summoner1_sprite.setPosition(sf::Vector2f(sf::Mouse::getPosition(window)) - sf::Vector2f(40, 40));
+            if (event.type == sf::Event::MouseButtonReleased) {
+                if (0 <= sf::Mouse::getPosition(window).y && sf::Mouse::getPosition(window).y <= sizey * 80 && 0 <= sf::Mouse::getPosition(window).x && sf::Mouse::getPosition(window).x <= sizex * 80) {
+                    if (level.GetCellType(sf::Mouse::getPosition(window).x / 80, sf::Mouse::getPosition(window).y / 80) == Summoners_Game::CellType::CELL_EMPTY) {
+                        level.GetDungeon()[level.GetSummoner()[1].GetInfo().x + sizex * level.GetSummoner()[1].GetInfo().y] = new Summoners_Game::Cell(Summoners_Game::CellType::CELL_EMPTY);
+                        level.GetDungeon()[sf::Mouse::getPosition(window).x / 80 + sizex * (sf::Mouse::getPosition(window).y / 80)] = new Summoners_Game::Cell_Summoner(&level.GetSummoner()[1]);
+                        level.GetSummoner()[1].GetInfo().x = sf::Mouse::getPosition(window).x / 80;
+                        level.GetSummoner()[1].GetInfo().y = sf::Mouse::getPosition(window).y / 80;
+                    }
+                }
+                summoner_drag = -1;
+            }
+        }
+
         event.type = sf::Event::MouseMoved;
+
         w_text.setString("Width: " + std::to_string(new_w));
         h_text.setString("Height: " + std::to_string(new_h));
 
@@ -1287,17 +1414,32 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
                 wall_tile.setPosition(x * 80, y * 80);
                 window.draw(wall_tile);
             }
+
+ 
+            if (summoner_drag == -1 && level.GetCellType(x, y) == Summoners_Game::CellType::CELL_SUMMONER) {
+                if ((static_cast<Summoners_Game::Cell_Summoner*>(level.GetDungeon()[i]))->Object == &level.GetSummoner()[0]) {
+                    summoner0_sprite.setPosition(x * 80, y * 80);
+                }
+                else {
+                    summoner1_sprite.setPosition(x * 80, y * 80);
+                }
+            }
+
+
             if (ground_tile.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
                 hl.setPosition(x * 80, y * 80);
                 window.draw(hl);
-                if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && level.GetDungeon()[i]->Type == Summoners_Game::CellType::CELL_EMPTY) {
+                if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && level.GetDungeon()[i]->Type == Summoners_Game::CellType::CELL_EMPTY && summoner_drag == -1) {
                     level.GetDungeon()[i] = new Summoners_Game::Cell(Summoners_Game::CellType::CELL_WALL);
                 }
-                else if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && level.GetDungeon()[i]->Type == Summoners_Game::CellType::CELL_WALL) {
+                else if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && level.GetDungeon()[i]->Type == Summoners_Game::CellType::CELL_WALL && summoner_drag == -1) {
                     level.GetDungeon()[i] = new Summoners_Game::Cell(Summoners_Game::CellType::CELL_EMPTY);
                 }
             }
         }
+
+        window.draw(summoner0_sprite);
+        window.draw(summoner1_sprite);
 
         //draw buttons
         window.draw(menu1);
@@ -1315,7 +1457,6 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
         window.draw(wd);
         window.draw(hu);
         window.draw(hd);
-
         window.display();
     }
 }
@@ -1327,6 +1468,7 @@ int main()
 {
     Summoners_Game::Level level;
     bool gamestarted = false;
+
     _mkdir("Save");
     _mkdir("Save/Maps");
     _mkdir("Save/Entities");
@@ -1339,6 +1481,7 @@ int main()
     sf::Image icon;
     icon.loadFromFile("Resources/return_button0.png");
     window.setIcon(64, 64, icon.getPixelsPtr());
+    window.setPosition(sf::Vector2i(320, 180));
     while (CurrentScene != -1) {
         switch (CurrentScene) {
         case 0: window.setVisible(true); MainScene(window, CurrentScene); break;
