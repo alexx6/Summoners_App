@@ -146,7 +146,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\LAB3\LAB3_CODE\SummonersMethods.cpp" />
+    <ClCompile Include="..\LAB3\LAB3_CODE\Level.cpp" />
+    <ClCompile Include="..\LAB3\LAB3_CODE\Squad.cpp" />
+    <ClCompile Include="..\LAB3\LAB3_CODE\Summoner.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

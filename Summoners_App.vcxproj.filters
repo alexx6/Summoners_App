@@ -18,7 +18,13 @@
     <ClCompile Include="main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\LAB3\LAB3_CODE\SummonersMethods.cpp">
+    <ClCompile Include="..\LAB3\LAB3_CODE\Level.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LAB3\LAB3_CODE\Squad.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LAB3\LAB3_CODE\Summoner.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
