@@ -40,7 +40,7 @@ int MainScene(sf::RenderWindow& window, int& CurrentScene) {
     menu3.setFillColor(sf::Color::White);
     sf::Text menu3_text;
     menu3_text.setFont(font1);
-    menu3_text.setString(sf::String("Save game"));
+    menu3_text.setString(sf::String("Save/Load"));
     menu3_text.setFillColor(sf::Color::Black);
     menu3_text.setCharacterSize(50);
     menu3_text.setPosition(73, 20);
@@ -422,31 +422,31 @@ int SchoolManager(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::L
                             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && text.getString() != "") {
                                 switch (selected2) {
                                 case 2:
-                                    level.GetSchoolList()[selected].Domination = std::stoi(std::string(text.getString().toAnsiString()));
+                                    level.GetSchoolList()[selected].Domination = std::stoi(text.getString().toAnsiString());
                                     vot2[selected2].setString(std::string("Domination:                              ") + std::to_string(level.GetSchoolList()[selected].Domination));
                                     break;
                                 case 3:
-                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).RequiredSchoolLevel = std::stoi(std::string(text.getString().toAnsiString()));
+                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).RequiredSchoolLevel = std::stoi(text.getString().toAnsiString());
                                     vot2[selected2].setString(std::string("Required school level:             ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].RequiredSchoolLevel));
                                     break;
                                 case 4:
-                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).MaxQuantity = std::stoi(std::string(text.getString().toAnsiString()));
+                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).MaxQuantity = std::stoi(text.getString().toAnsiString());
                                     vot2[selected2].setString(std::string("Maximum quantity:                  ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].MaxQuantity));
                                     break;
                                 case 5:
-                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.Damage = std::stoi(std::string(text.getString().toAnsiString()));
+                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.Damage = std::stoi(text.getString().toAnsiString());
                                     vot2[selected2].setString(std::string("Damage:                                    ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.Damage));
                                     break;
                                 case 6:
-                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.Defense = std::stoi(std::string(text.getString().toAnsiString()));
+                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.Defense = std::stoi(text.getString().toAnsiString());
                                     vot2[selected2].setString(std::string("Defense:                                    ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.Defense));
                                     break;
                                 case 7:
-                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.MaxHealth = std::stoi(std::string(text.getString().toAnsiString()));
+                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.MaxHealth = std::stoi(text.getString().toAnsiString());
                                     vot2[selected2].setString(std::string("Maximum health:                     ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.MaxHealth));
                                     break;
                                 case 8:
-                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.Speed = std::stoi(std::string(text.getString().toAnsiString()));
+                                    level.ModifySkill(level.GetSchoolList()[selected].SkillList[selected1].Name, level.GetSchoolList()[selected].Name).Entity_Parameters.Speed = std::stoi(text.getString().toAnsiString());
                                     vot2[selected2].setString(std::string("Speed:                                       ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.Speed));
                                     break;
                                 }
@@ -654,6 +654,11 @@ int SchoolManager(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::L
             del_school.setFillColor(sf::Color::Red);
         }
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+            CurrentScene = 0;
+            return 0;
+        }
+
 
         window.clear();
         //Draw background
@@ -685,8 +690,6 @@ int SchoolManager(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::L
 
     }
 }
-
-
 
 int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& level) {
     window.clear();
@@ -901,6 +904,11 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
         }
         else return_image.setColor(sf::Color::White);
 
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+            CurrentScene = 0;
+            return 0;
+        }
+
 
         window.clear();
         window.draw(back_image);
@@ -917,7 +925,7 @@ int SaveLoad(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level&
     }
 }
 
-std::vector<int> PossibleDestinations(sf::RenderWindow& window, Summoners_Game::Level& level, int sp, int count = 5) {
+std::vector<int> PossibleDestinations(sf::RenderWindow& window, Summoners_Game::Level& level, int sp, int count = 10) {
     std::vector<int> c;
     int i = 0;
     int dd = 0;
@@ -953,8 +961,348 @@ std::vector<int> PossibleDestinations(sf::RenderWindow& window, Summoners_Game::
     return c;
 }
 
+int SchoolUpgrade(sf::RenderWindow& window, Summoners_Game::Level& level, int& currentplayer) {
+    sf::Event event;
+
+    //Vector of schools
+    std::vector<sf::RectangleShape> vor;
+    std::vector<sf::Text> vot;
+
+    //Initializing the form
+    sf::Font font1;
+    font1.loadFromFile("Resources/18888.ttf");
+    sf::Vector2f offset(30, 30);
+    sf::RectangleShape menu(sf::Vector2f(400, 100));
+    menu.setFillColor(sf::Color::White);
+    sf::Text text;
+    text.setFont(font1);
+    text.setFillColor(sf::Color::Black);
+    text.setCharacterSize(45);
+    text.setPosition(15, 20);
+    menu.setPosition(menu.getPosition() + offset);
+    text.setPosition(text.getPosition() + offset);
+    menu.setOutlineThickness(7);
+    menu.setOutlineColor(sf::Color::Black);
+
+    //Vectors of skills and skill parameters
+    std::vector<sf::RectangleShape> vor1;
+    std::vector<sf::Text> vot1;
+    std::vector<sf::Text> vot2;
+
+    //Vector of schools
+    for (int i = 0; i < level.GetSchoolList().size(); i++) {
+        text.setString(level.GetSchoolList()[i].Name);
+        menu.setSize(sf::Vector2f(text.getGlobalBounds().width + 30, 100));
+        vor.push_back(menu);
+        vot.push_back(text);
+    }
+
+    //Background image
+    sf::Texture b_t;
+    b_t.create(1280, 720);
+    b_t.loadFromFile("Resources/menu_background.png");
+    sf::Sprite back_image;
+    back_image.setTexture(b_t);
+
+    //Return button
+    sf::Texture r_t;
+    r_t.loadFromFile("Resources/return_button0.png");
+    sf::Sprite return_image;
+    return_image.setTexture(r_t);
+    return_image.setPosition(window.getSize().x - 105, window.getSize().y - 105);
+    sf::RectangleShape b;
+
+    //IDs of selected school, skill and parameter
+    int selected = -1;
+    int selected1 = -1;
+    int selected2 = -1;
+
+    //Lines between parameters
+    sf::RectangleShape line;
+    line.setSize(sf::Vector2f(600, 3));
+    line.setFillColor(sf::Color::Black);
+
+    //pause background
+    sf::Texture pause_texture;
+    pause_texture.create(window.getSize().x, window.getSize().y);
+    pause_texture.update(window);
+    sf::Sprite pause_sprite;
+    pause_sprite.setTexture(pause_texture);
+    pause_sprite.setColor(sf::Color(70, 70, 70));
+
+    //Input rectangle
+    sf::RectangleShape input;
+    input.setFillColor(sf::Color::White);
+    input.setOutlineColor(sf::Color::Black);
+    input.setOutlineThickness(3);
+
+    //input window sign
+    sf::Text sign;
+    sign.setFont(font1);
+    sign.setFillColor(sf::Color::White);
+    sign.setCharacterSize(60);
+
+    //Add new school button
+    sf::Texture a0_t;
+    a0_t.loadFromFile("Resources/upgradearrow.png");
+    sf::Sprite additem0_image;
+    additem0_image.setTexture(a0_t);
+    additem0_image.setScale(2, 2);
+
+    //Upgrade button
+    sf::Sprite additem1_image;
+    additem1_image.setTexture(a0_t);
+    additem1_image.setScale(1.5, 1.5);
+    additem1_image.setPosition(0, -100);
+    additem1_image.setScale(sf::Vector2f(0.25, 0.25));
+
+    for (int i = 0; i < vor.size(); i++) {
+        vor[i].setPosition(vor[i].getPosition() + sf::Vector2f(0, 120 * i));
+        vot[i].setPosition(vot[i].getPosition() + sf::Vector2f(0, 120 * i));
+    }
+
+    bool rf = true;
+
+    sf::RectangleShape del_school(sf::Vector2f(15, 15));
+    del_school.setFillColor(sf::Color::Red);
+    del_school.setPosition(0, -100);
+    del_school.setOutlineThickness(-1);
+    del_school.setOutlineColor(sf::Color::Black);
+
+    sf::Text sl(text);
+    sl.setString("LVL");
+    sl.setCharacterSize(30);
+    sl.setOutlineColor(sf::Color::Black);
+    sl.setOutlineThickness(1);
+    sl.setFillColor(sf::Color::Red);
+
+    sf::Clock wt;
+    sf::Text warningtext(text);
+    warningtext.setFillColor(sf::Color::White);
+    warningtext.setCharacterSize(70 * level.GetSizeX() / 19);
+    warningtext.setOutlineColor(sf::Color::Black);
+    warningtext.setOutlineThickness(3);
+    bool warning = false;
+
+    event.type = sf::Event::MouseMoved;
+    while (true)
+    {
+        window.pollEvent(event);
+
+        if (event.type == sf::Event::Closed) {
+            return 0;
+        }
+
+        //School scroll
+        if (vor.size() > 0 && event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel && abs(event.mouseWheelScroll.delta) > 0.1 && sf::Mouse::getPosition(window).x < 640
+            && ((event.mouseWheelScroll.delta > 0 && vor[0].getPosition().y < 30) || (event.mouseWheelScroll.delta < 0 && vor.back().getPosition().y + 200 > window.getSize().y - 30))) {
+            if (event.mouseWheelScroll.delta > 10) event.mouseWheelScroll.delta = 10;
+            if (event.mouseWheelScroll.delta < -10) event.mouseWheelScroll.delta = -10;
+            for (int i = 0; i < vor.size(); i++) {
+                vor[i].setPosition(vor[i].getPosition() + sf::Vector2f(0, 10 * event.mouseWheelScroll.delta));
+                vot[i].setPosition(vot[i].getPosition() + sf::Vector2f(0, 10 * event.mouseWheelScroll.delta));
+            }
+        }
+
+        //Skill scroll
+        else if (selected >= 0 && sf::Mouse::getPosition(window).x >= 640 && vor1.size() > 0
+            && ((event.mouseWheelScroll.delta > 0 && vor1[0].getPosition().y < 30) || (event.mouseWheelScroll.delta < 0 && vor1.back().getPosition().y + vor1.back().getSize().y > window.getSize().y - 30))) {
+            if (event.mouseWheelScroll.delta > 10) event.mouseWheelScroll.delta = 10;
+            if (event.mouseWheelScroll.delta < -10) event.mouseWheelScroll.delta = -10;
+            for (int i = 0; i < vor1.size(); i++) {
+                vor1[i].setPosition(vor1[i].getPosition() + sf::Vector2f(0, 10 * event.mouseWheelScroll.delta));
+                vot1[i].setPosition(vot1[i].getPosition() + sf::Vector2f(0, 10 * event.mouseWheelScroll.delta));
+            }
+        }
+        else event.mouseWheelScroll.delta = 0;
+
+        //School selection
+        for (int i = 0; i < vor.size(); i++) {
+            if (vor[i].getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+                if (i != selected) {
+                    vor[i].setFillColor(sf::Color(151, 182, 255));
+                    if (event.type == sf::Event::MouseButtonPressed) {
+                        vor1.clear();
+                        vot1.clear();
+                        for (int j = 0; j < level.GetSchoolList()[i].SkillList.size(); j++) {
+                            text.setString(level.GetSchoolList()[i].SkillList[j].Name);
+                            menu.setSize(sf::Vector2f(600, 100));
+                            menu.setPosition(640, 30);
+                            text.setPosition(655, 50);
+
+                            menu.setFillColor(sf::Color::White);
+
+                            vor1.push_back(menu);
+                            vot1.push_back(text);
+                            vor1[j].setPosition(vor1[j].getPosition() + sf::Vector2f(0, 120 * j));
+                            vot1[j].setPosition(vot1[j].getPosition() + sf::Vector2f(0, 120 * j));
+                        }
+                        selected = i;
+                        selected1 = -1;
+                        vot2.clear();
+
+                        event.type = sf::Event::MouseMoved;
+                    }
+                }
+            }
+            else vor[i].setFillColor(sf::Color::White);
+        }
+
+        //Skill selection
+        for (int i = 0; i < vor1.size(); i++) {
+            if (vor1[i].getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window))) && rf) {
+                if (i != selected1) {
+                    vor1[i].setFillColor(sf::Color(151, 182, 255));
+                    if (event.type == sf::Event::MouseButtonPressed) {
+                        vor1[i].setSize(vor1[i].getSize() + sf::Vector2f(0, 298));
+                        for (int j = i + 1; j < vor1.size(); j++) {
+                            vor1[j].setPosition(vor1[j].getPosition() + sf::Vector2f(0, 298));
+                            vot1[j].setPosition(vot1[j].getPosition() + sf::Vector2f(0, 298));
+                        }
+                        if (selected1 >= 0) {
+                            vor1[selected1].setSize(vor1[selected1].getSize() - sf::Vector2f(0, 298));
+                            for (int j = selected1 + 1; j < vor1.size(); j++) {
+                                vor1[j].setPosition(vor1[j].getPosition() - sf::Vector2f(0, 298));
+                                vot1[j].setPosition(vot1[j].getPosition() - sf::Vector2f(0, 298));
+                            }
+                        }
+                        selected1 = i;
+                        //Adding skill description
+                        vot2.clear();
+                        text.setCharacterSize(30);
+
+                        text.setString(std::string("Entity name: ") + level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.Name);
+                        vot2.push_back(text);
+                        text.setString(std::string("Amorality: ") + ((level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.Amoral) ? "amoral" : "not amoral"));
+                        vot2.push_back(text);
+                        text.setString(std::string("Domination:                              ") + std::to_string(level.GetSchoolList()[selected].Domination));
+                        vot2.push_back(text);
+                        text.setString(std::string("Required school level:             ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].RequiredSchoolLevel));
+                        vot2.push_back(text);
+                        text.setString(std::string("Maximum quantity:                  ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].MaxQuantity));
+                        vot2.push_back(text);
+                        text.setString(std::string("Damage:                                    ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.Damage));
+                        vot2.push_back(text);
+                        text.setString(std::string("Defense:                                    ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.Defense));
+                        vot2.push_back(text);
+                        text.setString(std::string("Maximum health:                     ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.MaxHealth));
+                        vot2.push_back(text);
+                        text.setString(std::string("Speed:                                       ") + std::to_string(level.GetSchoolList()[selected].SkillList[selected1].Entity_Parameters.Speed));
+                        vot2.push_back(text);
+
+                        text.setCharacterSize(45);
+
+                        event.type = sf::Event::MouseMoved;
+                    }
+                }
+            }
+            else if (level.GetSummoner()[currentplayer].GetSchoolLevels()[selected] >= level.GetSchoolList()[selected].SkillList[i].RequiredSchoolLevel) {
+                vor1[i].setFillColor(sf::Color(214, 178, 255));
+            }
+            else {
+                vor1[i].setFillColor(sf::Color::White);
+            }
+        }
+
+        //Return button
+        if (return_image.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            return_image.setColor(sf::Color(150, 150, 150));
+            if (event.type == sf::Event::MouseButtonPressed) {
+                return 0;
+            }
+            rf = false;
+        }
+        else {
+            return_image.setColor(sf::Color::White);
+            rf = true;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) return 0;
+
+        //Selected school color
+        if (selected >= 0) {
+            vor[selected].setFillColor(sf::Color(87, 138, 255));
+        }
+
+        //Selected skill color
+        if (selected1 >= 0) {
+            vor1[selected1].setFillColor(sf::Color(87, 138, 255));
+        }
+
+        //Update skill parameters position
+        for (int i = 0; i < vot2.size(); i++)
+            vot2[i].setPosition(vot1[selected1].getPosition() + sf::Vector2f(0, 60 + i * 35));
+
+
+        if (selected >= 0) additem1_image.setPosition(vor[selected].getPosition() + sf::Vector2f(vor[selected].getGlobalBounds().width, 25));
+        if (additem1_image.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+            additem1_image.setColor(sf::Color(100, 100, 200));
+            if (event.type == sf::Event::MouseButtonPressed && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                try {
+                    level.GetSummoner()[currentplayer].Upgrade(selected);
+                    currentplayer = (currentplayer + 1) % 2;
+                    return 0;
+                }
+                catch (std::exception& ex) {
+                    wt.restart();
+                    warning = true;
+                    warningtext.setPosition(level.GetSizeX() * 40 - 400 * level.GetSizeX() / 19, level.GetSizeY() * 40 - 100);
+                    warningtext.setFillColor(sf::Color(255, 100, 100, 0));
+                    warningtext.setString(ex.what());
+                }
+                event.type = sf::Event::MouseMoved;
+            }
+        }
+        else {
+            additem1_image.setColor(sf::Color(129, 129, 255));
+        }
+
+        window.clear();
+        //Draw background
+        window.draw(pause_sprite);
+        //Draw list of schools
+        for (int i = 0; i < vor.size(); i++) {
+            window.draw(vor[i]);
+            window.draw(vot[i]);
+            sl.setString(sf::String("LVL ") + std::to_string(level.GetSummoner()[currentplayer].GetSchoolLevels()[i]));
+            sl.setPosition(vor[i].getPosition() + vor[i].getSize() - sf::Vector2f(sl.getGlobalBounds().width, sl.getGlobalBounds().height) - sf::Vector2f(2,6));
+            window.draw(sl);
+        }
+        window.draw(additem1_image);
+        //Draw list of skills
+        for (int i = 0; i < vor1.size(); i++) {
+            window.draw(vor1[i]);
+            window.draw(vot1[i]);
+        }
+        //Draw skill parameters
+        for (int i = 0; i < vot2.size(); i++) {
+            window.draw(vot2[i]);
+            line.setPosition(vot2[i].getPosition() - sf::Vector2f(15, 0));
+            window.draw(line);
+        }
+        window.draw(return_image);
+
+        if (warning && wt.getElapsedTime().asSeconds() < 5) {
+            window.draw(warningtext);
+            if (wt.getElapsedTime().asMilliseconds() < 500) {
+                warningtext.setOutlineColor(sf::Color(0, 0, 0, 0) + sf::Color(0, 0, 0, wt.getElapsedTime().asMilliseconds() * 255 / 500));
+                warningtext.setFillColor(sf::Color(255, 100, 100, 0) + sf::Color(0, 0, 0, wt.getElapsedTime().asMilliseconds() * 255 / 500));
+            }
+            else {
+                warningtext.setFillColor(sf::Color(255, 100, 100) - sf::Color(0, 0, 0, (wt.getElapsedTime().asMilliseconds() - 500) * 255 / 4500));
+                warningtext.setOutlineColor(sf::Color::Black - sf::Color(0, 0, 0, (wt.getElapsedTime().asMilliseconds() - 500) * 255 / 4500));
+            }
+        }
+        else warning = false;
+
+        window.display();
+    }
+}
 
 int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& level) {
+
+    level.GetSummoner()[0].GetSchoolLevels().reset(level.GetSchoolList().size());
+    level.GetSummoner()[1].GetSchoolLevels().reset(level.GetSchoolList().size());
 
     //Ground tile
     sf::Texture ground_t;
@@ -974,6 +1322,23 @@ int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& lev
     summoner0_sprite.setTexture(summoner_t);
     sf::Sprite summoner1_sprite(summoner0_sprite);
     summoner1_sprite.setColor(sf::Color(255, 255, 0));
+    //Text and button
+    sf::Vector2f offset(sf::Vector2f(level.GetSizeX() * 80 + 50, 20));
+    sf::Font font1;
+    font1.loadFromFile("Resources/18888.ttf");
+    sf::Text utext;
+    utext.setFont(font1);
+    utext.setFillColor(sf::Color::Black);
+    utext.setCharacterSize(30);
+    sf::RectangleShape menu(sf::Vector2f(300, 40));
+    menu.setFillColor(sf::Color::White);
+    menu.setOutlineThickness(7);
+    menu.setOutlineColor(sf::Color::Black);
+    menu.setPosition(menu.getPosition() + offset);
+    utext.setPosition(utext.getPosition() + offset);
+    sf::Text title(utext);
+    title.setFillColor(sf::Color::White);
+    title.move(50, 0);
     //////////////////////////////////////////
 
     sf::RectangleShape hl;
@@ -993,6 +1358,10 @@ int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& lev
 
     int selected = 1;
 
+    int currentplayer = 0;
+    int gamestate = 0; //0 - summoner is selected, 1 - squad is selected
+    bool pressedupgradeschool = false;
+
     sf::Event event;
     event.type = sf::Event::MouseMoved;
     while (true)
@@ -1004,6 +1373,25 @@ int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& lev
             CurrentScene = 0;
             return 0;
         }
+
+        if (currentplayer == 0) {
+            title.setString("Player0's turn");
+            window.draw(title);
+        }
+        else {
+            title.setString("Player0's turn");
+            window.draw(title);
+        }
+
+        if (gamestate == 0) {
+
+        }
+
+        if (pressedupgradeschool) {
+            SchoolUpgrade(window, level, currentplayer);
+            pressedupgradeschool = false;
+        }
+            
 
         window.clear();
         for (int i = 0; i < level.GetDungeon().size(); i++) {
@@ -1041,8 +1429,56 @@ int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& lev
                
             }
         }
+
+        //Highlighting player's entities
+        hl.setPosition(level.GetSummoner()[currentplayer].GetInfo().x * 80, level.GetSummoner()[currentplayer].GetInfo().y * 80);
+        window.draw(hl);
+        for (int i = 0; i < level.GetSummoner()[currentplayer].GetSquad().size(); i++) {
+            hl.setPosition(level.GetSummoner()[currentplayer].GetSquad()[i]->GetSquadInfo().x * 80, level.GetSummoner()[currentplayer].GetSquad()[i]->GetSquadInfo().y * 80);
+            window.draw(hl);
+        }
+
+        if (gamestate == 0) {
+            //Summmon squad button
+            utext.setPosition(level.GetSizeX() * 80 + 90, 70);
+            menu.setPosition(level.GetSizeX() * 80 + 50, 70);
+            utext.setString("Summon squad");
+            if (menu.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+                menu.setFillColor(sf::Color(151, 182, 255));
+                if (event.type == sf::Event::MouseButtonPressed && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+
+                }
+            }
+            else {
+                menu.setFillColor(sf::Color::White);
+            }
+            window.draw(menu);
+            window.draw(utext);
+            
+            //Upgrade school button
+            utext.move(0, 60);
+            menu.move(0, 60);
+            utext.setString("Upgrade school");
+            if (menu.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+                menu.setFillColor(sf::Color(151, 182, 255));
+                if (event.type == sf::Event::MouseButtonPressed && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                    pressedupgradeschool = true;
+                }
+            }
+            else {
+                menu.setFillColor(sf::Color::White);
+            }
+            window.draw(menu);
+            window.draw(utext);
+        }
+        
+
+
         window.draw(summoner0_sprite);
         window.draw(summoner1_sprite);
+
+        
+        window.draw(title);
 
         window.display();
 
@@ -1180,6 +1616,14 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
     pause_sprite.setColor(sf::Color(70, 70, 70));
 
     int summoner_drag = -1;
+    bool warning = false;
+
+    //Warning
+    sf::Clock wt;
+    sf::Text warningtext(text);
+    warningtext.setFillColor(sf::Color::White);
+    warningtext.setCharacterSize(70 * sizex / 19);
+    warningtext.setString("Current map can't be used \nbecause summoners are \nisolated from each other");
 
     sf::Event event;
     event.type = sf::Event::MouseMoved;
@@ -1307,7 +1751,7 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
 
         if (wd.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
             wd.setFillColor(sf::Color::Green);
-            if (new_w == 5) {
+            if (new_w == 12) {
                 wd.setFillColor(sf::Color::Red);
             }
             else if (event.type == sf::Event::MouseButtonPressed) {
@@ -1329,7 +1773,7 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
 
         if (hd.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
             hd.setFillColor(sf::Color::Green);
-            if (new_h == 5) {
+            if (new_h == 9) {
                 hd.setFillColor(sf::Color::Red);
             }
             else if (event.type == sf::Event::MouseButtonPressed) {
@@ -1350,21 +1794,32 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
         if (menu3.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
             menu3.setFillColor(sf::Color(151, 182, 255));
             if (event.type == sf::Event::MouseButtonPressed) {
-                gamestarted = true;
-                Play(window, CurrentScene, level);
-                return 0;
+                std::vector<int> pd;
+                pd = PossibleDestinations(window, level, level.GetSummoner()[0].GetInfo().x + sizex * level.GetSummoner()[0].GetInfo().y, 150);
+                if (std::find(pd.begin(), pd.end(), level.GetSummoner()[1].GetInfo().x + sizex * level.GetSummoner()[1].GetInfo().y) != pd.end()) {
+                    gamestarted = true;
+                    Play(window, CurrentScene, level);
+                    return 0;
+                }
+                else {
+                    wt.restart();
+                    warning = true;
+                    warningtext.setPosition(sizex * 40 - 400 * sizex / 19, sizey * 40 - 100);
+                    warningtext.setFillColor(sf::Color(255,255,255,0));
+                }
             }
         }
         else  menu3.setFillColor(sf::Color::White);
 
+
         //Dragging summoners
         if (summoner_drag == -1 && summoner0_sprite.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && event.type == sf::Event::MouseButtonPressed) {
                 summoner_drag = 0;
             }
         }
         if (summoner_drag == -1 && summoner1_sprite.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
-            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && event.type == sf::Event::MouseButtonPressed) {
                 summoner_drag = 1;
             }
         }
@@ -1457,12 +1912,19 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
         window.draw(wd);
         window.draw(hu);
         window.draw(hd);
+        //Draw warning when one summoner can't reach the other
+        if (warning && wt.getElapsedTime().asSeconds() < 5) {
+            window.draw(warningtext);
+            if (wt.getElapsedTime().asMilliseconds() < 500)
+                warningtext.setFillColor(sf::Color(255,255,255,0) + sf::Color(0, 0, 0, wt.getElapsedTime().asMilliseconds() * 255 / 500));
+            else
+                warningtext.setFillColor(sf::Color::White - sf::Color(0, 0, 0, (wt.getElapsedTime().asMilliseconds()-500) * 255 / 4500));
+        }
+        else warning = false;
+
         window.display();
     }
 }
-
-
-
 
 int main()
 {
