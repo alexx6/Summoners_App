@@ -5,6 +5,7 @@
 #include "../LAB3/LAB3_CODE/Summoners.h"
 #include <algorithm>
 
+
 int MainScene(sf::RenderWindow& window, int& CurrentScene) {
     window.clear();
     sf::Event event;
@@ -1301,9 +1302,6 @@ int SchoolUpgrade(sf::RenderWindow& window, Summoners_Game::Level& level, int& c
 
 int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& level) {
 
-    level.GetSummoner()[0].GetSchoolLevels().reset(level.GetSchoolList().size());
-    level.GetSummoner()[1].GetSchoolLevels().reset(level.GetSchoolList().size());
-
     //Ground tile
     sf::Texture ground_t;
     ground_t.loadFromFile("Resources/Map/ground_tile.png");
@@ -1358,7 +1356,7 @@ int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& lev
 
     int selected = 1;
 
-    int currentplayer = 0;
+    static int currentplayer = 0;
     int gamestate = 0; //0 - summoner is selected, 1 - squad is selected
     bool pressedupgradeschool = false;
 
@@ -1798,6 +1796,8 @@ int MapEditor(int& CurrentScene, Summoners_Game::Level& level, bool& gamestarted
                 pd = PossibleDestinations(window, level, level.GetSummoner()[0].GetInfo().x + sizex * level.GetSummoner()[0].GetInfo().y, 150);
                 if (std::find(pd.begin(), pd.end(), level.GetSummoner()[1].GetInfo().x + sizex * level.GetSummoner()[1].GetInfo().y) != pd.end()) {
                     gamestarted = true;
+                    level.GetSummoner()[0].GetSchoolLevels().reset(level.GetSchoolList().size());
+                    level.GetSummoner()[1].GetSchoolLevels().reset(level.GetSchoolList().size());
                     Play(window, CurrentScene, level);
                     return 0;
                 }
