@@ -1043,7 +1043,7 @@ int SchoolUpgrade(sf::RenderWindow& window, Summoners_Game::Level& level, int& c
     sign.setFillColor(sf::Color::White);
     sign.setCharacterSize(60);
 
-    //Add new school button
+    /////////////////////////////
     sf::Texture a0_t;
     a0_t.loadFromFile("Resources/upgradearrow.png");
     sf::Sprite additem0_image;
@@ -1084,6 +1084,17 @@ int SchoolUpgrade(sf::RenderWindow& window, Summoners_Game::Level& level, int& c
     warningtext.setOutlineColor(sf::Color::Black);
     warningtext.setOutlineThickness(3);
     bool warning = false;
+
+    sf::RectangleShape summonbutton(menu);
+    sf::Text summontext(text);
+    summontext.setString("Summon");
+    summonbutton.setSize(sf::Vector2f(195, 55));
+    summonbutton.setOutlineThickness(3);
+    summonbutton.setFillColor(sf::Color(150,255,150));
+
+    int placex, placey, placen;
+    std::vector<int> possible;
+    int r;
 
     event.type = sf::Event::MouseMoved;
     while (true)
@@ -1228,6 +1239,38 @@ int SchoolUpgrade(sf::RenderWindow& window, Summoners_Game::Level& level, int& c
         //Selected skill color
         if (selected1 >= 0) {
             vor1[selected1].setFillColor(sf::Color(87, 138, 255));
+            summonbutton.setPosition(vor1[selected1].getPosition() + sf::Vector2f(390,13));
+            summontext.setPosition(summonbutton.getPosition());
+            if (summonbutton.getGlobalBounds().contains(sf::Vector2f(sf::Mouse::getPosition(window)))) {
+               summonbutton.setFillColor(sf::Color(200, 255, 200));
+                if (event.type == sf::Event::MouseButtonPressed && sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+                    try {
+                        possible = PossibleDestinations(window, level, level.GetSummoner()[currentplayer].GetInfo().x + level.GetSizeX() * level.GetSummoner()[currentplayer].GetInfo().y, 5);
+                        r = 1;
+                        while (r < possible.size()) {
+                            if (level.GetDungeon()[r]->Type == Summoners_Game::CellType::CELL_EMPTY) break;
+                            ++r;
+                        }
+                        if (r == possible.size()) throw std::logic_error("Summoner doesn't have empty cells around");
+                        placen = 1;
+
+                        level.PlaceSquad(vot1[selected1].getString().toAnsiString(), vot[selected].getString().toAnsiString(), possible[r] % level.GetSizeX(), possible[r] / level.GetSizeX(), currentplayer, placen);
+                        currentplayer = (currentplayer + 1) % 2;
+                        return 0;
+                    }
+                    catch (std::exception& ex) {
+                        wt.restart();
+                        warning = true;
+                        warningtext.setPosition(level.GetSizeX() * 40 - 400 * level.GetSizeX() / 19, level.GetSizeY() * 40 - 100);
+                        warningtext.setFillColor(sf::Color(255, 100, 100, 0));
+                        warningtext.setString(ex.what());
+                    }
+                    event.type = sf::Event::MouseMoved;
+                }
+            }
+            else {
+                summonbutton.setFillColor(sf::Color(150, 255, 150));
+            }
         }
 
         //Update skill parameters position
@@ -1295,6 +1338,10 @@ int SchoolUpgrade(sf::RenderWindow& window, Summoners_Game::Level& level, int& c
             }
         }
         else warning = false;
+        if (selected1 >= 0) {
+            window.draw(summonbutton);
+            window.draw(summontext);
+        }
 
         window.display();
     }
@@ -1360,6 +1407,9 @@ int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& lev
     int gamestate = 0; //0 - summoner is selected, 1 - squad is selected
     bool pressedupgradeschool = false;
 
+    sf::CircleShape squadsprite(40, 20);
+    squadsprite.setFillColor(sf::Color::Magenta);
+
     sf::Event event;
     event.type = sf::Event::MouseMoved;
     while (true)
@@ -1409,6 +1459,10 @@ int Play(sf::RenderWindow& window, int& CurrentScene, Summoners_Game::Level& lev
                 else {
                     summoner1_sprite.setPosition(x * 80, y * 80);
                 }
+            }
+            if (level.GetCellType(x, y) == Summoners_Game::CellType::CELL_SQUAD) {
+                squadsprite.setPosition(x * 80, y * 80);
+                window.draw(squadsprite);
             }
         }
         for (int i = 0; i < level.GetDungeon().size(); i++) {
